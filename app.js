@@ -1,27 +1,23 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const {API_VERSION} = require('./constants');
+const { API_VERSION } = require("./constants");
 
-const app = express
+const app = express();
 
-//Cargas rutas
-const authRoutes = require("./src/routes/auth")
-const userRoutes = require("./src/routes/user")
+/* Cargar rutas */
+const authRoutes = require("./src/routes/auth");
+const userRoutes = require("./src/routes/user");
 
-//Trabajar con la extension client-rest
+/* Trabajar con la extensión client-rest */
 app.use(bodyParser.json());
+/* Ptuebas de request utilizando postman */
+app.use(bodyParser.urlencoded({ extended: true }));
 
-//Evitar bloqueos en el navegador cuando estemos trabajando
-//con el backend y el frontend a la vez
+/* Evitar bloqueos en el navegador cuando estemos trabajando con
+el backend y el fronten a la vez */
 app.use(cors());
-
-//Pruebas de request utilizando postman
-app.use(bodyParser.urlencoded({ extended: true}));
-
-
-//
-app.use(`api/${"API_VERSION"}/`, authRoutes);
-app.use(`api/${API_VERSION}/`, userRoutes);
-
-module.exports = app ;
+console.log(`api/${API_VERSION}/`);
+app.use(`/api/${API_VERSION}/auth`, authRoutes);
+//app.use(`/api/${API_VERSION}/`, userRoutes);
+module.exports = app;
