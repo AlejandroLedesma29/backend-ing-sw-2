@@ -10,4 +10,12 @@ const IP_SERVER = "localhost"
 const JWT_SECRET_KEY = "acceso-sistema-software-2-2023"
 
 
-module.exports = {DB_HOST, DB_NAME, DB_PASSWORD, DB_USER, API_VERSION, IP_SERVER, JWT_SECRET_KEY};
+module.exports = {
+    DB_HOST,
+    DB_NAME, 
+    DB_PASSWORD, 
+    DB_USER, 
+    API_VERSION, 
+    IP_SERVER, 
+    JWT_SECRET_KEY
+};

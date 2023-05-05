@@ -2,78 +2,78 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const jwt = require("../utils/jwt");
 
-const registrer = (req, res) =>{
-    const {firstname, lastname, email, password } = req.body;
+const registrer = async (req, res) => {
+    const { firstname, lastname, email, password } = req.body;
 
-    if(!email) res.status(400).send({msg : "El email es requerido"});
-    if(!password) res.status(400).send({msg : "La contraseña es requerido"});
-
-    const user = new User({
-        firstname, 
-        lastname, 
-        email : email.toLowerCase(), 
-        role:"user", 
-        active : false
-    });
+    if (!email) return res.status(400).send({ msg: "El email es requerido" });
+    if (!password)
+    return res.status(400).send({ msg: "La contraseña es requerido" });
 
     const salt = bcrypt.genSaltSync(10);
     const hashPassword = bcrypt.hashSync(password, salt);
-    user.password = hashPassword;
 
-    user.save((error, userStorage) =>{
-        if(error){
-            res.status(400).send({ msg : "Error al crear el usuario"});
-        } else {
-            res.status(200).send(userStorage);
-        }
-    })
+    const user = new User({
+    firstname,
+    lastname,
+    email: email.toLowerCase(),
+    role: "user",
+    active: false,
+    password: hashPassword,
+    });
+
+    try {
+    const userStorage = await user.save();
+    res.status(201).send(userStorage);
+    } catch (error) {
+    res.status(400).send({ msg: "Error al crear el usuario" });
+    }
 };
 
-const login = (req, res) => {
-    const {email, password} = req.body;
+const login = async (req, res) => {
+    const { email, password } = req.body;
 
-    if(!email) res.status(400).send({msg : "El email es requerido"});
-    if(!password) res.status(400).send({msg : "La contraseña es requerido"});
+    try {
+    if (!email || !password) {
+        throw new Error("El email y la contraseña son requeridos");
+    }
     const emailLowerCase = email.toLowerCase();
-    User.findOne({email : emailLowerCase}, (error, userStore)=>{
-        if(error){
-            res.status(500).send({ msg : "Error del servidor"});
-        } else {
-            bcrypt.compare(password, userStore.password, (bcryptError, check) =>{
-                if (bcryptError){
-                    res.status(500).send({ msg : "Error del servidor"});
-                } else if (!check){
-                    res.status(400).send({ msg : "Contraseña Incorrecta"});
-                } else if (!userStore.active){
-                    res.status(401).send({ msg : "Usuario no autorizado o no activo"});
-                } else {
-                    res.status(200).send({
-                        access : jwt.createAccessToken(userStore),
-                        refresh : jwt.createRefreshToken(userStore)
-                    });
-                }
-            })
-        }
-    })
-};
+    const userStore = await User.findOne({ email: emailLowerCase }).exec()
+    if (!userStore) {
+        throw new Error("El usuario no existe");
+    }
+    const check = await bcrypt.compare(password, userStore.password)
+    if (!check) {
+        throw new Error("Contraseña incorrecta");
+    }
+    if (!userStore.active) {
+        throw new Error("Usuario no autorizado o no activo");
+    }
+    res.status (200).send({
+        access: jwt.createAccessToken (userStore),
+        refresh: jwt.createRefreshToken (userStore),
+    });
+    } catch (error){
+        res.status (400).send({ msg: error.message });
+    }
+}
 
-const refreshAccessToken = (req, res) =>{
-    const { token } = req.body;
-    if (!token) res.status(400).send({ msg : "Token requerido"});
-    const { user_id } = jwt.decoded(token);
-    User.findOne({ _id : user_id }, (error, userStorage)=> {
-        if (error) {
-            res.status(500).send({ msg : "Error del servidor"});
-        } else {
-            res.status(200).send({
-                accesToken: jwt.createAccessToken(userStorage)
-            });
-        }
-    })
+const refreshAccessToken = (req, res) => {
+  const { token } = req.body;
+  if (!token) res.status(400).send({ msg: "Token requerido" });
+  const { user_id } = jwt.decoded(token);
+  User.findOne({ _id: user_id }, (error, userStorage) => {
+    if (error) {
+      res.status(500).send({ msg: "Error del servidor" });
+    } else {
+      res.status(200).send({
+        accesToken: jwt.createAccessToken(userStorage),
+      });
+    }
+  });
 };
 
 module.exports = {
-    registrer,
-    login,
-    refreshAccessToken
+  registrer,
+  login,
+  refreshAccessToken,
 };

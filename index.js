@@ -1,11 +1,19 @@
 const mongoose = require('mongoose');
 const app = require('./app');
 
-const {DB_HOST, DB_NAME, DB_PASSWORD, DB_USER, API_VERSION, IP_SERVER, JWT_SECRET_KEY} = require('./constants');
+const {
+    DB_HOST, 
+    DB_NAME, 
+    DB_PASSWORD, 
+    DB_USER, 
+    API_VERSION, 
+    IP_SERVER
+    } = require('./constants');
 
-const PORT = 3977;
-
-moongose.connect(`mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`,{
+const PORT = 3200;
+app.get(`/api/${API_VERSION}/auth`, (req, res) => res.send('Holi'));
+console.log(`mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`);
+mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`,{
     useNewUrlParser : true,
     useUnifiedTopology: true
 })
