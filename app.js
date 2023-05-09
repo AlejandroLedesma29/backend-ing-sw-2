@@ -7,7 +7,7 @@ const app = express();
 
 /* Cargar rutas */
 const authRoutes = require("./src/routes/auth");
-const userRoutes = require("./src/routes/user");
+//const userRoutes = require("./src/routes/user");
 
 /* Trabajar con la extensión client-rest */
 app.use(bodyParser.json());
