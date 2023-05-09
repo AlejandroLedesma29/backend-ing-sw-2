@@ -8,6 +8,8 @@ const UserSchema = mongoose.Schema({
         unique : true },
     password : String,
     role : String,
+    municipio : String,
+    departamento : String,
     active : Boolean,
     avatar : String
 });
